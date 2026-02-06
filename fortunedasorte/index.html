@@ -1,0 +1,1369 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BahiaFortuneBet - Oficial</title>
+
+    <link rel="icon" href="https://files.catbox.moe/ghb5pd.png">
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root {
+            --primary: #ff007f;
+            --bg: #0b0e11;
+            --card-bg: #1e2329;
+            --text-gray: #848e9c;
+            --green: #00ff88;
+            --red: #ff4444;
+            --font-main: 'Montserrat', sans-serif;
+            --gold: #f1c40f;
+            --silver: #bdc3c7;
+            --bronze: #cd7f32;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: white;
+            font-family: var(--font-main);
+            margin: 0;
+            padding-bottom: 80px;
+            overflow-x: hidden;
+        }
+
+
+        /* --- NOVO: CSS DO TOAST NEON PARA REFINAMENTO --- */
+        .toast-banca {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e2329;
+            border: 1px solid var(--primary);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: 900;
+            font-size: 12px;
+            z-index: 10000;
+            box-shadow: 0 0 20px rgba(255,0,127,0.4);
+            animation: slideDown 0.5s ease, fadeOut 0.5s ease 2.5s forwards;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        @keyframes slideDown {
+            from {
+                top: -50px;
+                opacity: 0;
+            }
+
+            to {
+                top: 20px;
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+            }
+        }
+
+
+        /* --- BLINDAGEM HEADER --- */
+        #main-header {
+            display: none;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: #181a20;
+            padding: 12px 15px;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            border-bottom: 1px solid var(--primary);
+            box-sizing: border-box;
+        }
+
+        .logo-clickable {
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+
+        /* --- MÓDULO CARROSSEL --- */
+        .carousel-container {
+            position: relative;
+            margin: 75px 15px 15px 15px;
+            height: 160px;
+            border-radius: 15px;
+            overflow: hidden;
+            display: block;
+        }
+
+        .carousel-track {
+            display: flex;
+            width: 300%;
+            height: 100%;
+            transition: transform 0.5s ease-in-out;
+        }
+
+
+        /* --- MÓDULO CARROSSEL CORRIGIDO --- */
+        .banner {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+            /* Garante que o fundo seja limpo para receber a imagem */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .b1 {
+            /* Adicionamos uma camada escura de 40% (0.4) para o texto branco aparecer melhor */
+            background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://files.catbox.moe/ghb5pd.png');
+        }
+
+        .b2 {
+            background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://files.catbox.moe/a70ned.png') !important;
+            background-size: cover !important;
+            background-position: center !important;
+        }
+
+        .b3 {
+            background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://files.catbox.moe/ezw7m7.png') !important;
+            background-size: cover !important;
+            background-position: center !important;
+            border: 1px solid var(--primary); /* Mantém a bordinha rosa que você já tem */
+        }
+
+        .carousel-dots {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+            .dot:hover {
+                background: rgba(255,255,255,0.8);
+            }
+
+            .dot.active {
+                background: var(--primary);
+                width: 20px;
+                border-radius: 10px;
+                transition: 0.3s;
+            }
+
+
+        /* --- BARRA DE GANHOS --- */
+        .gain-bar {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin: 0 15px 15px 15px;
+            padding: 10px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .gain-content {
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+            display: flex;
+            gap: 10px;
+            animation: slideInHome 5s infinite linear;
+        }
+
+        @keyframes slideInHome {
+            0% {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            10%, 90% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+        }
+
+
+        /* --- EXTRATO FINANCEIRO --- */
+        .trans-item {
+            background: #181a20;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 3px solid var(--text-gray);
+        }
+
+        .status-badge {
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .status-sucesso {
+            background: rgba(0, 255, 136, 0.1);
+            color: var(--green);
+        }
+
+        .status-analise {
+            background: rgba(255, 170, 0, 0.1);
+            color: #ffaa00;
+        }
+
+
+        /* --- CENTRAL DE NOTIFICAÇÕES --- */
+        #notif-panel {
+            position: fixed;
+            top: 65px;
+            right: 15px;
+            width: 260px;
+            max-height: 300px;
+            background: #181a20;
+            border: 1px solid var(--primary);
+            border-radius: 12px;
+            display: none;
+            flex-direction: column;
+            z-index: 3000;
+            box-shadow: 0 10px 30px #000;
+        }
+
+        .notif-header {
+            padding: 12px;
+            border-bottom: 1px solid #333;
+            font-weight: 900;
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .notif-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .notif-item {
+            background: #2b2f36;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 10px;
+            border-left: 3px solid var(--primary);
+        }
+
+
+        /* --- TELA DE REGISTRO --- */
+        .auth-container {
+            padding: 80px 20px 40px;
+            text-align: center;
+            max-width: 400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .auth-logo {
+            font-size: 32px;
+            font-weight: 900;
+            font-style: italic;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+        }
+
+            .auth-logo span {
+                color: var(--primary);
+            }
+
+        .input-group {
+            width: 100%;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+            .input-group label {
+                font-size: 10px;
+                font-weight: 900;
+                color: var(--text-gray);
+                text-transform: uppercase;
+                margin-bottom: 5px;
+                display: block;
+            }
+
+        .main-input {
+            width: 100%;
+            background: #1e2329;
+            border: 1px solid #333;
+            color: white;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: var(--font-main);
+            box-sizing: border-box;
+            font-weight: 700;
+        }
+
+        .btn-auth {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 20px;
+            border-radius: 8px;
+            font-weight: 900;
+            font-size: 16px;
+            cursor: pointer;
+            text-transform: uppercase;
+            margin-top: 15px;
+        }
+
+
+        /* --- VIP E PERFIL --- */
+        .vip-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: left;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .badge-vip {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .progress-bg {
+            background: #000;
+            height: 8px;
+            border-radius: 4px;
+            width: 100%;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: var(--primary);
+            height: 100%;
+            width: 0%;
+            transition: 1s ease-in-out;
+        }
+
+        .vip-info-card {
+            background: #181a20;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .vip-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+            margin-top: 10px;
+        }
+
+            .vip-table td {
+                padding: 10px 0;
+                border-bottom: 1px solid #222;
+            }
+
+
+        /* --- FINANCEIRO --- */
+        .finance-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 15px;
+            text-align: center;
+            border: 1px solid #2d333c;
+        }
+
+        .values-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin: 15px 0;
+        }
+
+        .val-opt {
+            background: #2b2f36;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 900;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+            .val-opt.active {
+                border-color: var(--primary);
+                color: var(--primary);
+            }
+
+        .input-finance-wrapper {
+            position: relative;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+            .input-finance-wrapper::before {
+                content: "R$";
+                position: absolute;
+                left: 15px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: var(--green);
+                font-weight: 900;
+            }
+
+        .input-finance {
+            width: 100%;
+            background: #000;
+            border: 1px solid #333;
+            color: white;
+            padding: 15px 15px 15px 45px;
+            border-radius: 8px;
+            font-weight: 900;
+            box-sizing: border-box;
+        }
+
+
+        /* --- CHAT E JOGOS --- */
+        #chat-window {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 280px;
+            height: 350px;
+            background: #181a20;
+            border: 1px solid var(--primary);
+            border-radius: 12px;
+            display: none;
+            flex-direction: column;
+            z-index: 2000;
+        }
+
+        #game-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 4000;
+            display: none;
+            flex-direction: column;
+        }
+
+
+        /* --- NAVEGAÇÃO SPA --- */
+        .page {
+            display: none;
+            padding-top: 20px;
+        }
+
+            .page.active {
+                display: block;
+            }
+
+        #home-page {
+            padding-top: 70px;
+        }
+
+        nav.bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: #181a20;
+            display: none;
+            justify-content: space-around;
+            padding: 12px 0;
+            border-top: 1px solid #2d333c;
+            z-index: 100;
+        }
+
+        .nav-item {
+            color: var(--text-gray);
+            font-size: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            background: none;
+            border: none;
+            text-transform: uppercase;
+        }
+
+            .nav-item.active {
+                color: var(--primary);
+            }
+
+        footer {
+            background: #181a20;
+            padding: 40px 20px 100px 20px;
+            text-align: center;
+            border-top: 1px solid #2d333c;
+        }
+
+        .badge-18 {
+            border: 2px solid #848e9c;
+            color: #848e9c;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 900;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+
+        /* --- MODAL BÔNUS --- */
+        #bonus-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 5000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+
+        .game-card {
+            cursor: pointer;
+            position: relative;
+            border: 1px solid #333;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: 0.3s;
+            background: var(--card-bg);
+        }
+
+            .game-card:active {
+                transform: scale(0.95);
+                filter: brightness(1.2);
+            }
+
+            .game-card::after {
+                content: 'JOGAR';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: var(--primary);
+                color: white;
+                padding: 5px 15px;
+                border-radius: 4px;
+                font-size: 10px;
+                font-weight: 900;
+                opacity: 0;
+                transition: 0.3s;
+                z-index: 2;
+            }
+
+            .game-card:hover::after {
+                opacity: 1;
+            }
+
+
+        /* ESTILO DO ADMIN */
+        .admin-user-card {
+            background: #181a20;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 3px solid var(--green);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10px;
+        }
+
+        .admin-btn {
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            font-weight: 900;
+            cursor: pointer;
+            margin-left: 5px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <header id="main-header">
+        <div onclick="mudarPagina('home', 'nav-home'); ativarAdmin();" class="auth-logo logo-clickable" style="font-size: 16px; margin-bottom: 0;">Bahia<span>Fortune</span></div>
+        <div style="display:flex; align-items:center; gap:15px;">
+            <div onclick="toggleNotif()" style="position:relative; cursor:pointer; font-size:18px;">
+                🔔 <span id="notif-count" style="background:var(--primary); color:white; font-size:9px; padding:2px 6px; border-radius:10px; position:absolute; top:-5px; right:-5px; display:none;">0</span>
+            </div>
+            <div style="background: #2b2f36; padding: 6px 12px; border-radius: 4px; font-weight: 700; border: 1px solid var(--primary);">
+                R$ <span class="saldo-dinamico">0.00</span>
+            </div>
+        </div>
+    </header>
+
+    <div id="notif-panel">
+        <div style="padding:12px; font-weight:900; font-size:11px; border-bottom:1px solid #333; display:flex; justify-content:space-between;">NOTIFICAÇÕES <span onclick="toggleNotif()" style="cursor:pointer;">&times;</span></div>
+        <div class="notif-body" id="notif-list"></div>
+    </div>
+
+    <main id="register-page" class="page active">
+        <div class="auth-container">
+            <div class="auth-logo">Bahia<span>Fortune</span></div>
+            <h2 id="auth-title" style="font-size: 13px; color: var(--primary); margin-bottom: 25px;">ACESSE SUA CONTA</h2>
+
+            <div id="group-cpf" class="input-group" style="display:none;"><label>CPF</label><input type="text" id="reg-cpf" class="main-input" placeholder="000.000.000-00" oninput="mascaraCPF(this)" maxlength="14"></div>
+            <div id="group-email" class="input-group" style="display:none;"><label>E-mail</label><input type="email" id="reg-email" class="main-input" placeholder="seu@email.com"></div>
+
+            <div class="input-group"><label>Usuário</label><input type="text" id="reg-user" class="main-input" placeholder="Seu login"></div>
+            <div class="input-group"><label>Senha</label><input type="password" id="reg-pass" class="main-input" placeholder="********"></div>
+
+            <button id="btn-auth-main" onclick="processarAuth()" class="btn-auth">Entrar na Banca</button>
+            <p id="toggle-auth" onclick="alternarAuth()" style="font-size: 10px; margin-top: 20px; cursor: pointer; color: var(--text-gray);">Não tem conta? <span style="color: var(--primary); font-weight: 900;">CADASTRE-SE AQUI</span></p>
+        </div>
+    </main>
+
+    <main id="home-page" class="page">
+        <div class="carousel-container">
+            <div class="carousel-track" id="track">
+                <div class="banner b1"><h2 style="font-size:18px; margin:0;">BÔNUS 100% ATIVO</h2><p style="font-size:10px; margin:10px 0;">Use o cupom <b>BAHIA777</b></p></div>
+                <div class="banner b2"><h2 style="font-size:18px; margin:0;">INDIQUE AMIGOS</h2><p style="font-size:10px; margin:10px 0;">Ganhe R$ 5,00 por convite!</p></div>
+                <div class="banner b3"><h2 style="font-size:18px; margin:0; color:var(--primary);">BAHIA VIP</h2><p style="font-size:10px; margin:10px 0;">Benefícios exclusivos todos os dias</p></div>
+            </div>
+            <div class="carousel-dots"><div class="dot active"></div><div class="dot"></div><div class="dot"></div></div>
+        </div>
+
+        <div class="gain-bar"><div class="gain-content"><span style="color:var(--primary)">●</span> <span id="winner-name">...</span> ganhou <span style="color:var(--green)">R$ <span id="winner-val">0.00</span></span> no Mines</div></div>
+
+        <div style="padding: 15px;">
+            <h3 style="color:var(--primary); font-size: 14px; margin-bottom: 15px; text-transform: uppercase; font-weight: 900;">🔥 Jogos em Alta</h3>
+
+
+            <div id="lista-jogos-api" style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                <p style="grid-column: span 2; text-align: center; font-size: 10px; color: var(--text-gray); padding: 20px;">
+                    Conectando com provedor de slots...
+                </p>
+            </div>
+
+        </div>
+
+        <footer><div class="badge-18">18+</div><p style="font-size:9px;">BahiaFortuneBet © 2026.</p></footer>
+    </main>
+
+    <main id="profile-page" class="page">
+        <div class="auth-container" style="padding-top:20px;">
+            <div style="width:70px; height:70px; background:var(--card-bg); border-radius:50%; border:2px solid var(--primary); display:flex; align-items:center; justify-content:center; font-size:28px;">👤</div>
+            <h2 id="user-disp" style="font-size:18px; color:var(--primary); margin:10px 0;">USUÁRIO</h2>
+            <div class="vip-container">
+                <div style="display:flex; justify-content:space-between;"><span style="font-size: 11px; font-weight: 900;">STATUS VIP</span><span id="vip-badge" class="badge-vip" style="background:var(--bronze)">Bronze</span></div>
+                <div class="progress-bg"><div id="vip-progress" class="progress-bar"></div></div>
+                <span onclick="mudarPagina('vip-benefits', 'nav-prof')" style="font-size: 9px; color: var(--green); text-decoration:underline; cursor:pointer;">VER VANTAGENS</span>
+            </div>
+            <button onclick="mudarPagina('refer', 'nav-prof')" style="width:100%; background:rgba(0,255,136,0.1); border:1px solid var(--green); color:var(--green); padding:15px; border-radius:8px; font-weight:900; margin:15px 0; cursor:pointer;">🤝 INDIQUE UM AMIGO</button>
+            <div style="display:flex; gap:10px; width:100%;">
+                <button onclick="mudarPagina('deposit', 'nav-dep')" style="flex:1; background:var(--green); border:none; padding:15px; border-radius:8px; font-weight:900;">DEPÓSITO</button>
+                <button onclick="mudarPagina('withdraw', 'nav-prof')" style="flex:1; background:var(--primary); color:white; border:none; padding:15px; border-radius:8px; font-weight:900;">SAQUE</button>
+            </div>
+            <button onclick="mudarPagina('extract', 'nav-prof')" style="width:100%; background:transparent; border:1px solid #333; color:white; padding:15px; border-radius:8px; font-weight:900; margin-top:15px;">🕒 VER EXTRATO</button>
+            <button onclick="logout()" style="margin-top:30px; background:none; border:1px solid red; color:red; padding:10px 30px; border-radius:5px; font-weight:900; cursor:pointer;">SAIR</button>
+        </div>
+    </main>
+
+    <main id="extract-page" class="page">
+        <div style="padding: 20px;">
+            <div onclick="mudarPagina('home', 'nav-home')" class="auth-logo logo-clickable" style="text-align:center; margin-bottom:20px;">Bahia<span>Fortune</span></div>
+            <h3 style="color:var(--primary); text-align:center;">MEU EXTRATO</h3>
+            <div id="extract-list" style="margin-top:20px;"><p style='text-align:center; font-size:10px; color:var(--text-gray);'>Sem transações.</p></div>
+            <button onclick="mudarPagina('profile', 'nav-prof')" class="btn-auth">VOLTAR</button>
+        </div>
+    </main>
+
+    <main id="vip-benefits-page" class="page">
+        <div style="padding: 20px;">
+            <div onclick="mudarPagina('home', 'nav-home')" class="auth-logo logo-clickable" style="text-align:center; margin-bottom:20px;">Bahia<span>Fortune</span></div>
+            <h3 style="color:var(--primary); text-align:center; margin-bottom:20px;">BENEFÍCIOS VIP</h3>
+            <div class="vip-info-card"><span class="badge-vip" style="background:var(--bronze)">BRONZE</span><table class="vip-table"><tr><td>Bônus Depósito</td><td>10%</td></tr><tr><td>Saque Diário</td><td>R$ 1k</td></tr></table></div>
+            <div class="vip-info-card"><span class="badge-vip" style="background:var(--silver)">PRATA</span><table class="vip-table"><tr><td>Bônus Depósito</td><td>20%</td></tr><tr><td>Saque Diário</td><td>R$ 5k</td></tr></table></div>
+            <div class="vip-info-card"><span class="badge-vip" style="background:var(--gold)">OURO</span><table class="vip-table"><tr><td>Bônus Depósito</td><td>50%</td></tr><tr><td>Suporte VIP</td><td>Sim</td></tr></table></div>
+            <div class="vip-info-card" style="border-color:var(--primary)"><span class="badge-vip" style="background:var(--primary)">BAHIA VIP</span><table class="vip-table"><tr><td>Cashback</td><td>10% Semanal</td></tr><tr><td>Gerente</td><td>Exclusivo</td></tr></table></div>
+            <button onclick="mudarPagina('profile', 'nav-prof')" class="btn-auth">VOLTAR AO PERFIL</button>
+        </div>
+    </main>
+
+    <main id="refer-page" class="page">
+        <div style="padding: 20px;">
+            <div onclick="mudarPagina('home', 'nav-home')" class="auth-logo logo-clickable" style="text-align:center; margin-bottom:20px;">Bahia<span>Fortune</span></div>
+
+            <div class="finance-card">
+                <h3 style="color:var(--primary); text-align:center;">INDIQUE UM AMIGO</h3>
+                <p style="font-size: 12px; margin-bottom: 20px;">Ganhe <b>R$ 5,00</b> por cada novo cadastro!</p>
+
+                <div id="my-refer-link" style="background:#000; padding:15px; border-radius:8px; color:var(--green); font-size:10px; margin-bottom:15px; border:1px solid #333; word-break:break-all;">...</div>
+
+                <button onclick="copiarLink()" class="btn-auth" style="background:var(--green); color:black; margin-bottom: 25px;">COPIAR MEU LINK</button>
+
+                <div style="background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 12px; border: 1px dashed var(--primary);">
+                    <p style="font-size: 10px; color: var(--text-gray); text-transform: uppercase; margin: 0;">Amigos que entraram pelo seu link</p>
+                    <h4 style="font-size: 32px; color: var(--primary); margin: 10px 0;">0</h4>
+                    <p style="font-size: 9px; color: var(--green);">Bônus total acumulado: R$ 0,00</p>
+                </div>
+            </div>
+
+            <button onclick="mudarPagina('profile', 'nav-prof')" class="btn-auth" style="background: transparent; border: 1px solid #333; margin-top: 15px;">VOLTAR AO PERFIL</button>
+        </div>
+    </main>
+
+    <main id="deposit-page" class="page">
+        <div class="finance-card">
+            <h3>RECARGA PIX ⚡</h3>
+            <div class="values-grid">
+                <div class="val-opt" onclick="setVal(this, 10)">R$ 10</div>
+                <div class="val-opt" onclick="setVal(this, 20)">R$ 20</div>
+                <div class="val-opt" onclick="setVal(this, 50)">R$ 50</div>
+                <div class="val-opt" onclick="setVal(this, 100)">R$ 100</div>
+            </div>
+            <div class="input-finance-wrapper"><input type="number" id="val-dep" class="input-finance" placeholder="VALOR"></div>
+
+            <button id="btn-gerar-pix" onclick="gerarPixDivPag()" class="btn-auth" style="background:var(--green); color:black;">GERAR PIX AGORA</button>
+
+            <div id="qr-container" style="display:none; margin-top:20px; background:white; padding:15px; border-radius:10px; color: #000;">
+                <p style="font-weight:900; font-size:12px; margin-bottom:10px;">ESCANEIE O QR CODE:</p>
+                <img id="qr-code-img" src="" style="width:100%; max-width:180px; margin:0 auto; display:block; border: 1px solid #eee;">
+                <p style="font-size:10px; font-weight:900; margin-top:15px; text-transform:uppercase;">Ou use o Pix Copia e Cola:</p>
+                <input type="text" id="pix-copy-paste" readonly style="width:100%; font-size:10px; padding:8px; border:1px solid #ccc; background:#f9f9f9; border-radius:5px; box-sizing: border-box;">
+                <button onclick="copiaPixCode()" style="margin-top:10px; width:100%; background:#000; border:none; color:white; padding:10px; border-radius:5px; font-weight:900; cursor:pointer;">COPIAR CÓDIGO</button>
+            </div>
+        </div>
+    </main>
+
+    <main id="withdraw-page" class="page">
+        <div class="finance-card">
+            <h3 style="color:var(--primary)">SAQUE PIX</h3>
+            <select id="tipo-pix" style="width:100%; padding:15px; background:#2b2f36; border:none; color:white; border-radius:8px; margin-bottom:12px; font-weight:700;">
+                <option value="cpf">CPF</option>
+                <option value="email">E-mail</option>
+                <option value="tel">Telefone</option>
+                <option value="ale">Chave Aleatória</option>
+            </select>
+            <input type="text" class="input-finance" placeholder="CHAVE PIX" style="padding-left:15px; margin-bottom:15px; width:100%; background:#000; border:1px solid #333; color:white; border-radius:8px; padding:15px;">
+            <div class="input-finance-wrapper"><input type="number" id="val-saque" class="input-finance" placeholder="VALOR"></div>
+            <button onclick="processarSaque()" class="btn-auth">SACAR AGORA</button>
+        </div>
+    </main>
+
+    <main id="admin-page" class="page">
+        <div style="padding: 20px;">
+            <div onclick="mudarPagina('home', 'nav-home')" class="auth-logo logo-clickable" style="text-align:center; margin-bottom:20px;">PAINEL <span>DONO</span></div>
+
+            <div class="finance-card" style="border-color: var(--red);">
+                <h3 style="color:var(--red); text-align:center;">GERENCIAMENTO DE USUÁRIOS</h3>
+                <p style="font-size:10px; color:#999; margin-bottom:15px;">Toque no ícone de dinheiro para editar o saldo.</p>
+
+                <div id="admin-user-list" style="display:flex; flex-direction:column; gap:10px;">
+                    <p style="text-align:center;">Carregando usuários...</p>
+                </div>
+            </div>
+
+            <button onclick="mudarPagina('home', 'nav-home')" class="btn-auth" style="background:#333; margin-top:15px;">SAIR DO MODO DEUS</button>
+        </div>
+    </main>
+
+    <div id="bonus-modal">
+        <div style="background:var(--card-bg); padding:30px; border-radius:20px; border:2px solid var(--primary); text-align:center; width:80%; max-width:300px; position:relative;">
+            <span onclick="fecharBonus()" style="position:absolute; top:10px; right:15px; font-size:24px; cursor:pointer;">&times;</span>
+            <h2 style="color:var(--primary)">AXÉ DA SORTE!</h2>
+            <p id="bonus-text" style="font-size:12px;"></p>
+            <button onclick="fecharBonus(); mudarPagina('deposit', 'nav-dep');" style="width:100%; background:var(--green); border:none; padding:15px; border-radius:8px; font-weight:900; margin-top:15px;">RESGATAR BÔNUS</button>
+        </div>
+    </div>
+
+    <div id="chat-window">
+        <div style="background:var(--primary); padding:10px; display:flex; justify-content:space-between; font-weight:900; font-size:11px;"><span>SUPORTE</span><span onclick="toggleChat()" style="cursor:pointer;">&times;</span></div>
+        <div id="chat-msgs" style="flex:1; padding:10px; overflow-y:auto; font-size:11px; display:flex; flex-direction:column; gap:8px;"></div>
+        <div style="padding:8px; display:flex; gap:5px;"><input type="text" id="chat-in" style="flex:1; background:#000; color:white; border:1px solid #333; padding:5px;"><button onclick="sendMsg()" style="background:var(--primary); border:none; color:white; padding:5px;">ENVIAR</button></div>
+    </div>
+    <div id="btn-suporte-fixo" onclick="toggleChat()" style="position:fixed; bottom:85px; right:20px; width:50px; height:50px; background:var(--primary); border-radius:50%; display:none; align-items:center; justify-content:center; z-index:1000; font-size:24px;">💬</div>
+
+    <div id="game-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: none; flex-direction: column;">
+
+        <div style="background: #181a20; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--primary);">
+            <div style="font-weight: 900; color: white; font-size: 12px;">BAHIA FORTUNE <span style="color:var(--primary)">•</span> LIVE</div>
+            <button onclick="fecharJogo()" style="background: var(--red); color: white; border: none; padding: 8px 15px; border-radius: 5px; font-weight: 900; cursor: pointer; font-size: 10px;">FECHAR JOGO X</button>
+        </div>
+
+        <iframe id="game-iframe" src="" style="flex: 1; width: 100%; border: none; background: #000;"></iframe>
+    </div>
+
+    <nav class="bottom-nav" id="main-nav">
+        <button class="nav-item active" id="nav-home" onclick="mudarPagina('home', 'nav-home')">🏠<br>Home</button>
+        <button class="nav-item" id="nav-dep" onclick="mudarPagina('deposit', 'nav-dep')">💰<br>Depósito</button>
+        <button class="nav-item" id="nav-prof" onclick="mudarPagina('profile', 'nav-prof')">👤<br>Perfil</button>
+    </nav>
+
+    <script>
+        // CONFIGURAÇÃO SUPABASE
+        const SUPABASE_URL = 'https://zqvfnykxwlcozvawqgrn.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxdmZueWt4d2xjb3p2YXdxZ3JuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3NDkzNDQsImV4cCI6MjA4NTMyNTM0NH0.CevpF9vP4748mb2vFNsOp5Kq6u7Nfp_100bJcW7ogUQ';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let saldo = 0; let isLogged = false; let modoAuth = 'login'; let xp = 0; let transacoes = []; let notificacoes = []; let currentBanner = 0;
+        const names = ["A***_bet", "Lu***_77", "Sorte***", "Baiano***", "Bet***"];
+
+        function alternarAuth() {
+            const titulo = document.getElementById('auth-title');
+            const btn = document.getElementById('btn-auth-main');
+            const toggle = document.getElementById('toggle-auth');
+            const groupCpf = document.getElementById('group-cpf');
+            const groupEmail = document.getElementById('group-email');
+
+            if (modoAuth === 'login') {
+                modoAuth = 'cadastro';
+                titulo.innerText = "CRIE SUA CONTA";
+                btn.innerText = "CADASTRAR NA BANCA";
+                toggle.innerHTML = 'Já tem conta? <span style="color: var(--primary); font-weight: 900;">FAÇA LOGIN</span>';
+
+                // Mostra os campos de cadastro
+                groupCpf.style.display = 'block';
+                groupEmail.style.display = 'block';
+            } else {
+                modoAuth = 'login';
+                titulo.innerText = "ACESSE SUA CONTA";
+                btn.innerText = "ENTRAR NA BANCA";
+                toggle.innerHTML = 'Não tem conta? <span style="color: var(--primary); font-weight: 900;">CADASTRE-SE AQUI</span>';
+
+                // Esconde os campos extras
+                groupCpf.style.display = 'none';
+                groupEmail.style.display = 'none';
+            }
+        }
+
+        // --- FUNÇÃO CORRIGIDA DE LOGOUT ---
+        function logout() {
+            // 1. Remove os dados salvos no navegador
+            localStorage.removeItem('bahia_user');
+
+            // 2. Reseta as variáveis locais
+            isLogged = false;
+            saldo = 0;
+
+            // 3. Recarrega a página (agora sem o dado salvo, ele vai ficar na tela de login)
+            location.reload();
+        }
+
+        // --- NOVO: FUNÇÃO DE NOTIFICAÇÃO ESTILIZADA ---
+        function notificarErro(msg) {
+            const toast = document.createElement('div');
+            toast.className = 'toast-banca';
+            toast.innerHTML = `⚠️ <span>${msg}</span>`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // --- FUNÇÃO DE LOGIN E CADASTRO (COM TRAVA DE BANIMENTO) ---
+        async function processarAuth() {
+            const u = document.getElementById('reg-user').value;
+            const s = document.getElementById('reg-pass').value;
+
+            if (!u || s.length < 4) return notificarErro("Preencha usuário e senha!");
+
+            if (modoAuth === 'cadastro') {
+                // --- LÓGICA DE CADASTRO ---
+                const e = document.getElementById('reg-email').value;
+                const c = document.getElementById('reg-cpf').value;
+
+                if (!e.includes('@')) return notificarErro("Email inválido!");
+
+                // Cria usuário já com banido = false
+                const { error } = await supabaseClient
+                    .from('usuarios')
+                    .insert([{ username: u, email: e, cpf: c, senha: s, saldo: 0, banido: false }]);
+
+                if (error) return notificarErro("Erro no Cadastro (Usuário já existe?)");
+
+                notificarErro("Sucesso! Logue agora.");
+                alternarAuth();
+
+            } else {
+                // --- LÓGICA DE LOGIN ---
+                const { data, error } = await supabaseClient
+                    .from('usuarios')
+                    .select('*')
+                    .eq('username', u)
+                    .eq('senha', s)
+                    .single();
+
+                if (error || !data) return notificarErro("Login incorreto!");
+
+                // 🔒 AQUI ESTÁ A TRAVA DE SEGURANÇA 🔒
+                if (data.banido === true) {
+                    alert("🚫 ACESSO NEGADO\n\nSua conta foi suspensa pela administração.\nEntre em contato com o suporte.");
+                    return; // O código para aqui e não deixa entrar
+                }
+
+                // Se não estiver banido, entra normal
+                logarUsuario(data);
+                salvarSessao(data); // <--- GARANTIR QUE SALVA AQUI TAMBÉM
+            }
+        }
+
+        function logarUsuario(user) {
+            salvarSessao(user);
+            iniciarSuporteAtivo();
+            atualizarContadorAmigos(user.username);
+            carregarJogosAPI();
+            iniciarCarrossel();
+
+            xp = user.xp || 0;
+            ganharXP(0);
+            isLogged = true;
+            saldo = user.saldo;
+
+            document.getElementById('main-header').style.display = 'flex';
+            document.getElementById('main-nav').style.display = 'flex';
+            document.getElementById('btn-suporte-fixo').style.display = 'flex';
+            document.getElementById('register-page').classList.remove('active');
+            document.getElementById('home-page').classList.add('active');
+
+            document.getElementById('user-disp').innerText = user.username.toUpperCase();
+            document.getElementById('bonus-text').innerHTML = `Olá <b>${user.username}</b>! Dobre seu saldo com <b>BAHIA777</b>!`;
+            document.getElementById('bonus-modal').style.display = 'flex';
+            document.getElementById('my-refer-link').innerText = `bahiafortune.bet/convite/${user.username.toLowerCase()}`;
+
+            document.querySelectorAll('.saldo-dinamico').forEach(e => e.innerText = saldo.toFixed(2));
+            atualizarVip();
+            updateGainBar();
+        }
+
+        const listaGanhadores = [
+            { n: "A***_7812", v: 42.50, j: "Fortune Tiger" },
+            { n: "M***_3245", v: 125.80, j: "Fortune Ox" },
+            { n: "1256***_7", v: 89.25, j: "Fortune Rabbit" },
+            { n: "R***_7032", v: 12.00, j: "Cash Mania" },
+            { n: "1022***_X", v: 55.12, j: "Fortune Tiger" },
+            { n: "L***_9983", v: 310.40, j: "Fortune Ox" },
+            { n: "873***_99", v: 15.00, j: "Cash Mania" },
+            { n: "T***_Winner", v: 72.33, j: "Fortune Rabbit" },
+            { n: "1293***_Bet", v: 218.90, j: "Fortune Tiger" },
+            { n: "G***_9854", v: 41.50, j: "Fortune Ox" }
+        ];
+
+        let carrosselTimer;
+
+        function mudarBanner(indice) {
+            currentBanner = indice;
+            const track = document.getElementById('track');
+            const dots = document.querySelectorAll('.dot');
+
+            if (track) {
+                track.style.transform = `translateX(-${currentBanner * (100 / 3)}%)`;
+            }
+
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentBanner);
+            });
+
+            reiniciarTimerCarrossel();
+        }
+
+        function reiniciarTimerCarrossel() {
+            clearInterval(carrosselTimer);
+            carrosselTimer = setInterval(() => {
+                let proximo = (currentBanner + 1) % 3;
+                mudarBanner(proximo);
+            }, 5000);
+        }
+
+        function iniciarCarrossel() {
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach((dot, index) => {
+                dot.onclick = () => mudarBanner(index);
+            });
+            reiniciarTimerCarrossel();
+        }
+
+        function updateGainBar() {
+            if (!isLogged) return;
+            const content = document.querySelector('.gain-content');
+            if (!content) return;
+            const ganhador = listaGanhadores[Math.floor(Math.random() * listaGanhadores.length)];
+            content.innerHTML = `<span style="color:var(--primary)">●</span> <span>${ganhador.n}</span> ganhou <span style="color:var(--green)">R$ ${ganhador.v.toFixed(2)}</span> no ${ganhador.j}`;
+        }
+        setInterval(updateGainBar, 5000);
+
+        async function gerarPixDivPag() {
+            const btn = document.getElementById('btn-gerar-pix');
+            const valor = parseFloat(document.getElementById('val-dep').value);
+            const user = JSON.parse(localStorage.getItem('bahia_user'));
+
+            if (isNaN(valor) || valor < 10) return notificarErro("Mínimo R$ 10,00");
+
+            btn.innerText = "GERANDO...";
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/api/webhook', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'create_payment',
+                        amount: valor,
+                        username: user.username,
+                        cpf: user.cpf ? user.cpf.replace(/\D/g, '') : "00000000000"
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.qrcode) {
+                    document.getElementById('qr-container').style.display = 'block';
+                    document.getElementById('qr-code-img').src = data.qrcode_image;
+                    document.getElementById('pix-copy-paste').value = data.qrcode;
+                    btn.innerText = "AGUARDANDO PAGAMENTO...";
+                    notificarErro("Pix gerado! Pague para cair o saldo.");
+                } else {
+                    throw new Error("Erro na resposta da API");
+                }
+            } catch (e) {
+                console.error(e);
+                notificarErro("Erro ao gerar PIX. Tente novamente.");
+                btn.innerText = "GERAR PIX AGORA";
+                btn.disabled = false;
+            }
+        }
+
+        function copiaPixCode() {
+            const copyText = document.getElementById("pix-copy-paste");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(copyText.value);
+            alert("✅ Código PIX copiado com sucesso!");
+        }
+
+        // --- NOVO: REFINAMENTO DE JOGOS (TRAVA DE SALDO) ---
+        async function abrirJogo(gameCode, provider) {
+            if (!isLogged) return notificarErro("Faz login para jogar!");
+
+            if (saldo <= 0) {
+                notificarErro("Saldo insuficiente! Faz um depósito.");
+                mudarPagina('deposit', 'nav-dep');
+                return;
+            }
+
+            document.getElementById('game-overlay').style.display = 'flex';
+            const iframe = document.getElementById('game-iframe');
+            iframe.src = "about:blank";
+
+            try {
+                const response = await fetch('https://api.playfivers.com/api/v2/game_launch', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        agentToken: "19183cbb-e108-403a-823f-3d671e5c4969",
+                        secretKey: "20540c97-8646-4faf-8176-78c794a27249",
+                        user_code: JSON.parse(localStorage.getItem('bahia_user')).username,
+                        game_code: gameCode,
+                        provider: provider,
+                        game_original: true,
+                        user_balance: saldo,
+                        lang: "pt"
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.status && data.launch_url) {
+                    // Garante que o link abre em HTTPS para não "bugar" na Vercel
+                    iframe.src = data.launch_url.replace("http://", "https://");
+                } else {
+                    throw new Error(data.msg || "Falha ao gerar link");
+                }
+            } catch (e) {
+                fecharJogo();
+                notificarErro("Erro de Conexão: " + e.message);
+            }
+        }
+
+        function mudarPagina(id, navId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(id + '-page').classList.add('active');
+            if (document.getElementById(navId)) document.getElementById(navId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+        function toggleNotif() { const p = document.getElementById('notif-panel'); p.style.display = p.style.display === 'flex' ? 'none' : 'flex'; }
+        function toggleChat() { const w = document.getElementById('chat-window'); w.style.display = w.style.display === 'flex' ? 'none' : 'flex'; if (w.style.display === 'flex') document.getElementById('chat-msgs').innerHTML = '<div style="background:#2b2f36; padding:8px; border-radius:8px;">Suporte Online. Como podemos ajudar?</div>'; }
+        function sendMsg() { const i = document.getElementById('chat-in'); if (i.value === "") return; document.getElementById('chat-msgs').innerHTML += `<div style="align-self:flex-end; background:var(--primary); padding:8px; border-radius:8px; margin-top:5px;">${i.value}</div>`; i.value = ""; }
+        function mascaraCPF(i) { let v = i.value.replace(/\D/g, ""); if (v.length <= 11) { v = v.replace(/(\d{3})(\d)/, "$1.$2"); v = v.replace(/(\d{3})(\d)/, "$1.$2"); v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2"); } i.value = v; }
+        function setVal(el, v) { document.querySelectorAll('.val-opt').forEach(o => o.classList.remove('active')); el.classList.add('active'); document.getElementById('val-dep').value = v; }
+        function atualizarS() { document.querySelectorAll('.saldo-dinamico').forEach(e => e.innerText = saldo.toFixed(2)); }
+        function processarSaque() { let v = parseFloat(document.getElementById('val-saque').value); if (v > saldo || v < 20) return notificarErro("Erro no saque!"); saldo -= v; atualizarS(); }
+        function atualizarVip() { const bar = document.getElementById('vip-progress'); const badge = document.getElementById('vip-badge'); let level = "Bronze"; if (xp >= 100) level = "Prata"; badge.innerText = level; bar.style.width = (xp % 100) + "%"; }
+        function fecharBonus() { document.getElementById('bonus-modal').style.display = 'none'; }
+        function copiarLink() { const link = document.getElementById('my-refer-link').innerText; navigator.clipboard.writeText(link); notificarErro("Link copiado!"); }
+        function fecharJogo() { document.getElementById('game-overlay').style.display = 'none'; document.getElementById('game-iframe').src = ""; }
+
+
+        function salvarSessao(user) {
+            localStorage.setItem('bahia_user', JSON.stringify(user));
+        }
+
+        window.addEventListener('load', async () => {
+            const salvo = localStorage.getItem('bahia_user');
+            if (salvo) {
+                const dadosUser = JSON.parse(salvo);
+                const { data, error } = await supabaseClient.from('usuarios')
+                    .select('*')
+                    .eq('username', dadosUser.username)
+                    .eq('senha', dadosUser.senha)
+                    .single();
+                if (data && !error) {
+                    logarUsuario(data);
+                    carregarJogosAPI();
+                }
+            }
+        });
+
+        function iniciarSuporteAtivo() {
+            const mensagensSuporte = [
+                "Suporte: Olá! Sabia que depósitos via PIX caem em menos de 30 segundos? ⚡",
+                "Sistema: Verificamos que o Cupom BAHIA777 ainda está ativo para você!",
+                "Suporte: Precisa de ajuda com saques? Nossa equipe está online 24h.",
+                "Dica: Os jogos Fortune Tiger e Fortune Ox estão com alta taxa de bônus agora! 🐯"
+            ];
+
+            let indiceMsg = 0;
+
+            // Envia uma mensagem a cada 45 segundos para não poluir o chat
+            setInterval(() => {
+                if (isLogged) {
+                    const chatMsgs = document.getElementById('chat-msgs');
+                    if (chatMsgs) {
+                        const msgDiv = document.createElement('div');
+                        // Estilo da mensagem do suporte (Bordinha rosa para destacar)
+                        msgDiv.style.cssText = "background:#2b2f36; padding:8px; border-radius:8px; margin-top:5px; border-left:3px solid var(--primary); font-style:italic; font-size:10px;";
+                        msgDiv.innerText = mensagensSuporte[indiceMsg];
+                        chatMsgs.appendChild(msgDiv);
+
+                        // Faz o chat rolar sozinho para a última mensagem
+                        chatMsgs.scrollTop = chatMsgs.scrollHeight;
+
+                        indiceMsg = (indiceMsg + 1) % mensagensSuporte.length;
+                    }
+                }
+            }, 45000);
+        }
+
+        // --- SISTEMA DE CONTAGEM DE AMIGOS REAL ---
+        async function atualizarContadorAmigos(username) {
+            // Busca na tabela 'usuarios' quantos registros existem onde o 'username' (ou campo de indicação) bate
+            // Nota: Essa lógica assume que você tem um sistema de rastreio simples.
+            // Por agora, vamos buscar se o username do dono aparece em algum campo de indicação.
+
+            const { count, error } = await supabaseClient
+                .from('usuarios')
+                .select('*', { count: 'exact', head: true });
+            // Aqui depois podemos filtrar por .eq('indicado_por', username) quando criarmos esse campo.
+
+            const contadorHTML = document.querySelector('#refer-page h4');
+            if (contadorHTML) {
+                // Simulamos o número real ou mostramos o que veio do banco
+                contadorHTML.innerText = count ? count - 1 : 0; // -1 para não contar o próprio usuário
+            }
+        }
+
+        function ganharXP(quantidade) {
+            xp += quantidade;
+            const barra = document.getElementById('vip-progress');
+            const badge = document.getElementById('vip-badge');
+            if (barra) barra.style.width = (xp % 100) + "%";
+            if (badge) {
+                if (xp >= 300) { badge.innerText = "Bahia VIP"; badge.style.background = "var(--primary)"; }
+                else if (xp >= 200) { badge.innerText = "Ouro"; badge.style.background = "var(--gold)"; }
+                else if (xp >= 100) { badge.innerText = "Prata"; badge.style.background = "var(--silver)"; }
+                else { badge.innerText = "Bronze"; badge.style.background = "var(--bronze)"; }
+            }
+        }
+
+        // --- SISTEMA ADMIN (GOD MODE) - VERSÃO CORRIGIDA ---
+        let cliquesSecretos = 0;
+
+        function ativarAdmin() {
+            cliquesSecretos++;
+            if (cliquesSecretos === 5) {
+                const senha = prompt("🔒 ACESSO RESTRITO\nDigite a Senha Mestra:");
+                if (senha === "wrdd777") { // SUA SENHA
+                    alert("BEM VINDO, CHEFE! 🕶️");
+                    mudarPagina('admin', '');
+                    carregarPainelAdmin();
+                } else {
+                    alert("Acesso Negado.");
+                }
+                cliquesSecretos = 0;
+            }
+        }
+
+        // --- SISTEMA ADMIN COMPLETO (COM APROVAÇÃO DE DEPÓSITOS) ---
+
+        async function carregarPainelAdmin() {
+            const lista = document.getElementById('admin-user-list');
+            lista.innerHTML = "<p style='text-align:center'>Buscando dados...</p>";
+
+            // 2. CARREGA USUÁRIOS
+            const { data: usuarios } = await supabaseClient
+                .from('usuarios')
+                .select('*')
+                .order('saldo', { ascending: false });
+
+            lista.innerHTML = ""; // Limpa a tela
+
+
+            // --- BLOCO: LISTA DE USUÁRIOS ---
+            const tituloUsers = document.createElement('h4');
+            tituloUsers.style.cssText = "color:white; text-align:center; margin:20px 0 10px 0; border-bottom:1px solid #333; padding-bottom:5px;";
+            tituloUsers.innerText = "GERENCIAR USUÁRIOS";
+            lista.appendChild(tituloUsers);
+
+            if (usuarios) {
+                usuarios.forEach(user => {
+                    const div = document.createElement('div');
+                    div.className = 'admin-user-card';
+
+                    let txtBan = "BANIR"; let corBan = "var(--red)";
+                    if (user.banido) {
+                        div.style.borderLeftColor = "var(--red)";
+                        div.style.opacity = "0.6";
+                        txtBan = "DESBANIR"; corBan = "var(--green)";
+                    }
+
+                    div.innerHTML = `
+                                <div>
+                                    <b style="color:white; font-size:12px;">${user.username}</b>
+                                    <br>Saldo: <span style="color:var(--green)">R$ ${user.saldo.toFixed(2)}</span>
+                                </div>
+                                <div>
+                                    <button onclick="editarSaldoAdmin('${user.username}')" class="admin-btn" style="background:var(--primary); color:white;">💰</button>
+                                    <button onclick="banirUsuarioAdmin('${user.username}', ${user.banido})" class="admin-btn" style="background:${corBan}; color:white; width:70px;">${txtBan}</button>
+                                </div>
+                            `;
+                    lista.appendChild(div);
+                });
+            }
+
+
+            async function editarSaldoAdmin(username) {
+                const novoValor = prompt(`💰 Digite o novo saldo para ${username}:`);
+                if (novoValor !== null) {
+                    const valorFloat = parseFloat(novoValor);
+                    if (isNaN(valorFloat)) return alert("Valor inválido!");
+
+                    const { error } = await supabaseClient
+                        .from('usuarios')
+                        .update({ saldo: valorFloat })
+                        .eq('username', username);
+
+                    if (!error) {
+                        alert("Saldo atualizado!");
+                        carregarPainelAdmin();
+                    } else {
+                        alert("Erro ao atualizar.");
+                    }
+                }
+            }
+
+            async function banirUsuarioAdmin(username, estadoAtual) {
+                const acao = estadoAtual ? "DESBANIR" : "BANIR";
+                if (!confirm(`Tem certeza que deseja ${acao} o usuário ${username}?`)) return;
+
+                const { error } = await supabaseClient
+                    .from('usuarios')
+                    .update({ banido: !estadoAtual })
+                    .eq('username', username);
+
+                if (!error) {
+                    carregarPainelAdmin();
+                } else {
+                    alert("Erro! Verifique a coluna 'banido' no Supabase.");
+                }
+            }
+        } // <--- ESTA CHAVE FECHA O carregarPainelAdmin (LINHA 599)
+
+        async function carregarJogosAPI() {
+            const container = document.getElementById('lista-jogos-api');
+            try {
+                const response = await fetch('https://api.playfivers.com/api/v2/games?provider=1');
+                const result = await response.json();
+
+                if (result.status && result.data) {
+                    container.innerHTML = "";
+                    result.data.slice(0, 12).forEach(jogo => {
+                        container.innerHTML += `
+                                <div class="game-card" onclick="abrirJogo('${jogo.game_code}', '${jogo.provider.name}')">
+                                    <img src="${jogo.image_url}" style="width:100%; height:110px; object-fit:cover;">
+                                    <div style="padding:8px; text-align:center; font-size:10px; font-weight:900;">${jogo.name.toUpperCase()}</div>
+                                </div>`;
+                    });
+                }
+            } catch (e) {
+                container.innerHTML = "<p style='text-align:center; font-size:10px; color:red;'>Erro ao carregar jogos oficiais.</p>";
+            }
+        }
+
+    </script>
+</body>
+</html>

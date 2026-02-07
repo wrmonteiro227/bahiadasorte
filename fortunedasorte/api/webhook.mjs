@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+import fetch from 'node-fetch'; // Importação explícita para evitar o "fetch failed"
 import { createClient } from '@supabase/supabase-js';
 
 export default async function handler(req, res) {
@@ -8,19 +8,16 @@ export default async function handler(req, res) {
 
     if (req.method === 'OPTIONS') return res.status(200).end();
 
-    try {
-        const { amount, username, cpf, action } = req.body;
+    const { amount, username, cpf, action } = req.body;
 
-        if (action === 'create_payment') {
-            const API_TOKEN = "wrmonteiro_4001873957"; 
-            const API_SECRET = "436fc76ab41e0cfbb1aff11c7efea600c9cd36624a95ac935f7d68da8e3f596d";
-
-            // 1. GERAÇÃO DO PIX
-            const resDivPag = await fetch('https://api.divpag.com.br/v1/pix/generate', {
+    if (action === 'create_payment') {
+        try {
+            // 1. Chamada para DivPag
+            const responsePix = await fetch('https://api.divpag.com.br/v1/pix/generate', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${API_TOKEN}`,
-                    'X-Api-Secret': API_SECRET,
+                    'Authorization': 'Bearer wrmonteiro_4001873957',
+                    'X-Api-Secret': '436fc76ab41e0cfbb1aff11c7efea600c9cd36624a95ac935f7d68da8e3f596d',
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
@@ -31,31 +28,33 @@ export default async function handler(req, res) {
                 })
             });
 
-            const dataPix = await resDivPag.json();
+            if (!responsePix.ok) {
+                const erroTexto = await responsePix.text();
+                return res.status(400).json({ error: "Erro na DivPag", detalhes: erroTexto });
+            }
 
-            // 2. REGISTRO NO SUPABASE (Com trava para não quebrar o PIX se o banco falhar)
+            const dataPix = await responsePix.json();
+
+            // 2. Gravação no Supabase (Blindada)
             try {
-                if (process.env.SUPABASE_URL && process.env.SUPABASE_KEY) {
-                    const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
-                    await supabase.from('transacoes').insert([{
-                        usuario: username,
-                        valor: parseFloat(amount),
-                        tipo: 'deposito',
-                        status: 'pendente',
-                        id_transacao_ext: String(dataPix.transaction_id || dataPix.id || 'sem_id')
-                    }]);
-                }
-            } catch (dbError) {
-                console.error("Erro no banco:", dbError.message);
+                const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+                await supabase.from('transacoes').insert([{
+                    usuario: username,
+                    valor: parseFloat(amount),
+                    tipo: 'deposito',
+                    status: 'pendente',
+                    id_transacao_ext: String(dataPix.transaction_id || dataPix.id || 'sem_id')
+                }]);
+            } catch (supaErr) {
+                console.log("Erro banco (ignorado para gerar PIX):", supaErr.message);
             }
 
             return res.status(200).json(dataPix);
+
+        } catch (error) {
+            // Se o fetch falhar, ele cai aqui
+            return res.status(500).json({ error: "Falha de rede (fetch failed)", message: error.message });
         }
-        return res.status(200).json({ status: "ok" });
-
-    } catch (error) {
-        // Força a resposta de erro a ser JSON para não dar o erro do "Token A"
-        return res.status(200).json({ error: true, message: error.message });
     }
+    return res.status(200).json({ ok: true });
 }
-

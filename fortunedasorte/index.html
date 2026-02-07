@@ -1045,38 +1045,43 @@
 
        async function gerarPixDivPag() {
     try {
+        // 1. Pega o elemento pelo ID correto: 'val-dep'
+        const inputElement = document.getElementById('val-dep');
+        
+        // 2. Extrai o valor do input e guarda na variável 'valor'
+        const valor = inputElement ? inputElement.value : 0;
+
+        // 3. Verifica se o valor é válido antes de enviar
+        if (!valor || parseFloat(valor) <= 0) {
+            alert("Por favor, digite um valor para o depósito.");
+            return;
+        }
+
+        // Agora o 'valor' existe e o código abaixo não vai mais travar!
         const response = await fetch('/api/webhook', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 action: 'create_payment',
-                amount: valor, // Certifique-se que 'valor' está definido antes
+                amount: parseFloat(valor),
                 username: user.username,
                 cpf: user.cpf ? user.cpf.replace(/\D/g, '') : "00000000000"
             })
         });
 
         const result = await response.json();
-
-        // Se o servidor retornar erro, ele cairá aqui
-        if (result.error) {
-            console.error("Erro detalhado do servidor:", result.message);
-            alert("Atenção: " + result.message);
-            return;
-        }
-
-        // A DivPag costuma retornar 'qrcode' ou 'pix_code'
-        if (result.qrcode || result.qrcode_image || result.pix_code) {
-            // Aqui você chama a função que abre o seu modal com o QR Code
-            mostrarModalPix(result); 
+        
+        if (result.qrcode || result.pix_code) {
+            // Chame sua função de abrir o modal/popup do PIX aqui
+            console.log("PIX Gerado com sucesso!");
+            abrirModalPix(result); 
         } else {
-            console.log("Resposta inesperada:", result);
-            alert("Erro: Resposta da API incompleta.");
+            alert("Erro: " + (result.message || "Falha ao gerar PIX"));
         }
 
     } catch (error) {
-        console.error("Erro na chamada:", error);
-        alert("Erro de conexão. Verifique o console.");
+        console.error("Erro na função:", error);
+        alert("Erro técnico: " + error.message);
     }
 }
 
@@ -1364,3 +1369,4 @@
 </body>
 
 </html>
+

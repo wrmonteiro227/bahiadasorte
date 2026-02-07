@@ -1043,46 +1043,42 @@
         }
         setInterval(updateGainBar, 5000);
 
-        async function gerarPixDivPag() {
-            const btn = document.getElementById('btn-gerar-pix');
-            const valor = parseFloat(document.getElementById('val-dep').value);
-            const user = JSON.parse(localStorage.getItem('bahia_user'));
+       async function gerarPixDivPag() {
+    try {
+        const response = await fetch('/api/webhook', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'create_payment',
+                amount: valor, // Certifique-se que 'valor' está definido antes
+                username: user.username,
+                cpf: user.cpf ? user.cpf.replace(/\D/g, '') : "00000000000"
+            })
+        });
 
-            if (isNaN(valor) || valor < 10) return notificarErro("Mínimo R$ 10,00");
+        const result = await response.json();
 
-            btn.innerText = "GERANDO...";
-            btn.disabled = true;
-
-            try {
-                const response = await fetch('/api/webhook', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'create_payment',
-                        amount: valor,
-                        username: user.username,
-                        cpf: user.cpf ? user.cpf.replace(/\D/g, '') : "00000000000"
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.qrcode) {
-                    document.getElementById('qr-container').style.display = 'block';
-                    document.getElementById('qr-code-img').src = data.qrcode_image;
-                    document.getElementById('pix-copy-paste').value = data.qrcode;
-                    btn.innerText = "AGUARDANDO PAGAMENTO...";
-                    notificarErro("Pix gerado! Pague para cair o saldo.");
-                } else {
-                    throw new Error("Erro na resposta da API");
-                }
-            } catch (e) {
-                console.error(e);
-                notificarErro("Erro ao gerar PIX. Tente novamente.");
-                btn.innerText = "GERAR PIX AGORA";
-                btn.disabled = false;
-            }
+        // Se o servidor retornar erro, ele cairá aqui
+        if (result.error) {
+            console.error("Erro detalhado do servidor:", result.message);
+            alert("Atenção: " + result.message);
+            return;
         }
+
+        // A DivPag costuma retornar 'qrcode' ou 'pix_code'
+        if (result.qrcode || result.qrcode_image || result.pix_code) {
+            // Aqui você chama a função que abre o seu modal com o QR Code
+            mostrarModalPix(result); 
+        } else {
+            console.log("Resposta inesperada:", result);
+            alert("Erro: Resposta da API incompleta.");
+        }
+
+    } catch (error) {
+        console.error("Erro na chamada:", error);
+        alert("Erro de conexão. Verifique o console.");
+    }
+}
 
         function copiaPixCode() {
             const copyText = document.getElementById("pix-copy-paste");
@@ -1366,4 +1362,5 @@
 
     </script>
 </body>
+
 </html>

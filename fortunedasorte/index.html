@@ -1045,56 +1045,62 @@
 
        async function gerarPixDivPag() {
     try {
-        // 1. Captura o valor digitado no campo correto
+        // 1. Captura o valor digitado no campo val-dep
         const inputElement = document.getElementById('val-dep');
-        const valor = inputElement ? inputElement.value : 0;
+        const valorRaw = inputElement ? inputElement.value : 0;
+        const valor = parseFloat(valorRaw);
 
-        // 2. Busca os dados do usuário na chave correta que encontramos: bahia_user
-        const bahiaData = localStorage.getItem('bahia_user');
-        
-        if (!bahiaData) {
-            alert("Sessão expirada. Por favor, faça login novamente.");
-            return;
-        }
-
-        // Transforma o texto do localStorage em um objeto que o JS entende
-        const user = JSON.parse(bahiaData);
-
-        if (!valor || parseFloat(valor) <= 0) {
+        if (!valor || valor <= 0) {
             alert("Por favor, digite um valor válido para o depósito.");
             return;
         }
 
+        // 2. Busca os dados do usuário logado no bahia_user
+        const bahiaData = localStorage.getItem('bahia_user');
+        if (!bahiaData) {
+            alert("Sessão expirada. Por favor, faça login novamente.");
+            return;
+        }
+        const user = JSON.parse(bahiaData);
+
         console.log("Iniciando geração de PIX para:", user.username);
 
-        // 3. Envia para o seu servidor na Vercel
+        // 3. Envia para o seu webhook na Vercel
         const response = await fetch('/api/webhook', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 action: 'create_payment',
-                amount: parseFloat(valor),
+                amount: valor,
                 username: user.username,
-                cpf: user.cpf ? user.cpf.replace(/\D/g, '') : "00000000000"
+                cpf: user.cpf || "00000000000"
             })
         });
 
         const result = await response.json();
-        
-        // 4. Lógica para exibir o resultado
-        if (result.qrcode || result.pix_code || result.id) {
-            console.log("PIX Gerado com sucesso!", result);
+
+        // 4. Processa a resposta da DivPag v3
+        if (result.qrcode) {
+            console.log("PIX Gerado com sucesso!");
+
+            // O 'result.qrcode' é o código Copia e Cola
+            const copiaECola = result.qrcode;
             
-            // Aqui chamamos a função que mostra o QR Code na sua tela
-            // Se a sua função de abrir o modal tiver outro nome, ajuste aqui embaixo:
+            // Criamos o link da imagem do QR Code para o usuário escanear
+            const imagemQRCode = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(copiaECola)}`;
+
+            // Tenta abrir o seu modal. Se a função abrirModalPix não existir, usa um plano B
             if (typeof abrirModalPix === "function") {
-                abrirModalPix(result.qrcode_image || result.qrcode, result.pix_code || result.id);
+                // Passamos a imagem e o código para o seu modal
+                abrirModalPix(imagemQRCode, copiaECola);
             } else {
-                // Caso não ache a função do modal, ele avisa e mostra no log
-                alert("PIX Gerado! Copie o código: " + (result.pix_code || result.id));
+                // Plano B: Mostra o código num prompt caso o modal falhe
+                alert("PIX Gerado! Use o código Copia e Cola.");
+                prompt("Copie o código PIX abaixo:", copiaECola);
             }
         } else {
-            alert("Erro da API: " + (result.message || "Falha ao gerar o pagamento."));
+            // Caso a API retorne erro (ex: saldo insuficiente na conta API ou chaves erradas)
+            alert("Erro da API: " + (result.message || "Não foi possível gerar o QR Code. Verifique suas credenciais."));
         }
 
     } catch (error) {
@@ -1387,5 +1393,6 @@
 </body>
 
 </html>
+
 
 

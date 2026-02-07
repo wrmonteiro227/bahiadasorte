@@ -1364,6 +1364,19 @@
             }
         }
 
+        const response = await fetch('/api/webhook', { ... });
+const result = await response.json(); // Agora o webhook sempre manda JSON
+
+if (result.qrcode || result.pix_code) {
+    // Código para mostrar o QR Code (ex: result.qrcode_image ou result.qrcode)
+    mostrarQrCode(result); 
+} else if (result.error || result.message) {
+    alert("Erro na API: " + (result.message || result.error));
+} else {
+    alert("Resposta desconhecida: " + JSON.stringify(result));
+}
+
     </script>
 </body>
+
 </html>

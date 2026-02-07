@@ -1,3 +1,4 @@
+import fetch from 'node-fetch';
 import { createClient } from '@supabase/supabase-js';
 
 export default async function handler(req, res) {
@@ -57,3 +58,4 @@ export default async function handler(req, res) {
         return res.status(200).json({ error: true, message: error.message });
     }
 }
+
